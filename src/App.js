@@ -2,12 +2,9 @@ import './assets/css/App.css';
 import { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import React from 'react';
-import './assets/css/App.css';
 import Navbar from './components/Navbar/Navbar';
 
-
 function App() {
-  const google = window.google;
   const navigate = useNavigate();
 
   const handleCallbackResponse = (response) => {
@@ -16,16 +13,29 @@ function App() {
   }
 
   useEffect(() => {
-    google.accounts.id.initialize({
-      client_id: process.env.REACT_APP_CLIENT_ID,
-      callback: handleCallbackResponse
-    });
+    // Function to load the Google API script
+    const loadGoogleScript = () => {
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        window.google.accounts.id.initialize({
+          client_id: process.env.REACT_APP_CLIENT_ID,
+          callback: handleCallbackResponse
+        });
 
-    google.accounts.id.renderButton(
-      document.getElementById('sign-in-div'),
-      { theme: "outline", size: "large" }
-    );
-  }, [google, navigate]);
+        window.google.accounts.id.renderButton(
+          document.getElementById('sign-in-div'),
+          { theme: "outline", size: "large" }
+        );
+      };
+      document.body.appendChild(script);
+    };
+
+    // Load the Google API script
+    loadGoogleScript();
+  }, [navigate]);
 
   return (
     <div className="Login-page">
